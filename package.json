@@ -1,0 +1,19 @@
+{
+    "name": "qoi",
+    "version": "1.0.0",
+    "private": true,
+    "description": "",
+    "author": "Keve1227 <killenlillen02@gmail.com>",
+    "type": "module",
+    "files": [
+        "index.js"
+    ],
+    "scripts": {
+        "test": "node ./.test/test.js"
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.23",
+        "@types/sharp": "^0.30.1",
+        "sharp": "^0.30.3"
+    }
+}
