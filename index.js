@@ -3,8 +3,14 @@
  *     width: number,
  *     height: number,
  *     channels?: 3 | 4,
- *     colorspace?: "srgb" | "linear",
- * }} QOIOptions
+ *     colorspace?: keyof typeof colorspaces,
+ * }} QOIEncodingOptions
+ *
+ * @typedef {{
+ *     buffer: ArrayBufferLike,
+ *     byteOffset: number,
+ *     byteLength: number,
+ * }} TypedArrayLike
  */
 
 const colorspaces = {
@@ -20,12 +26,17 @@ const QOI_OP_LUMA = 0b10_000000;
 const QOI_OP_RUN = 0b11_000000;
 
 /**
- * @param {Uint8Array} data
- * @param {QOIOptions} options
+ * @template {TypedArrayLike} T
+ * @param {T} data
+ * @param {QOIEncodingOptions} options
  */
 export function encode(data, options) {
     let { width, height, channels = 4, colorspace = "srgb" } = options;
     const colorspaceId = colorspaces[colorspace];
+
+    data = new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+    width = Number(width) >>> 0;
+    height = Number(height) >>> 0;
 
     if (channels !== 3 && channels !== 4) {
         throw new Error(`Invalid number of channels: ${JSON.stringify(channels)}, expected 3 or 4.`);
@@ -34,9 +45,6 @@ export function encode(data, options) {
     if (colorspaceId === undefined) {
         throw new Error(`Invalid colorspace: ${JSON.stringify(colorspace)}, expected "srgb" or "linear".`);
     }
-
-    width = Number(width) >>> 0;
-    height = Number(height) >>> 0;
 
     if (data.length !== width * height * channels) {
         throw new Error(`Invalid data size: ${data.byteLength} bytes, expected ${width * height * channels} bytes.`);
