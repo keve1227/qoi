@@ -164,7 +164,7 @@ export function encode(data, options) {
             writeUint8(b);
         } else {
             // QOI_OP_RGBA
-            writeManyUint8(QOI_OP_RGBA);
+            writeUint8(QOI_OP_RGBA);
             writeUint8(r);
             writeUint8(g);
             writeUint8(b);
@@ -198,3 +198,4 @@ export default {
     ...QOI,
     QOI,
 };
+
