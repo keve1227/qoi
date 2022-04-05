@@ -52,30 +52,24 @@ export function encode(data, options) {
         }
     };
 
-    const writeUint32 = (...v) => {
-        for (let i = 0, j = o; i < v.length; i++, j += 4) {
-            result[j + 0] = (v[i] >>> 24) & 0xff;
-            result[j + 1] = (v[i] >>> 16) & 0xff;
-            result[j + 2] = (v[i] >>> 8) & 0xff;
-            result[j + 3] = v[i] & 0xff;
-        }
-
-        o += v.length * 4;
+    const writeUint32 = (v) => {
+        result[o++] = (v >>> 24) & 0xff;
+        result[o++] = (v >>> 16) & 0xff;
+        result[o++] = (v >>> 8) & 0xff;
+        result[o++] = v & 0xff;
     };
 
-    const writeUint8 = (...v) => {
-        for (let i = 0, j = o; i < v.length; i++, j++) {
-            result[j] = v[i] & 0xff;
-        }
-
-        o += v.length;
+    const writeUint8 = (v) => {
+        result[o++] = v & 0xff;
     };
 
     // Header
 
     writeString("qoif");
-    writeUint32(width, height);
-    writeUint8(channels, colorspaceId);
+    writeUint32(width);
+    writeUint32(height);
+    writeUint8(channels);
+    writeUint8(colorspaceId);
 
     // Data
 
@@ -150,15 +144,23 @@ export function encode(data, options) {
                 const __dr_dg = _dr_dg + 8;
                 const __db_dg = _db_dg + 8;
 
-                writeUint8(QOI_OP_LUMA | __dg, (__dr_dg << 4) | __db_dg);
+                writeUint8(QOI_OP_LUMA | __dg);
+                writeUint8((__dr_dg << 4) | __db_dg);
                 continue;
             }
 
             // QOI_OP_RGB
-            writeUint8(QOI_OP_RGB, r, g, b);
+            writeUint8(QOI_OP_RGB);
+            writeUint8(r);
+            writeUint8(g);
+            writeUint8(b);
         } else {
             // QOI_OP_RGBA
-            writeUint8(QOI_OP_RGBA, r, g, b, a);
+            writeManyUint8(QOI_OP_RGBA);
+            writeUint8(r);
+            writeUint8(g);
+            writeUint8(b);
+            writeUint8(a);
         }
     }
 
