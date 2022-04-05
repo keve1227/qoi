@@ -46,26 +46,36 @@ export function encode(data, options) {
     const result = new Uint8Array(14 + width * height * 5);
     let o = 0;
 
+    const writeString = (s) => {
+        for (const c of [...s]) {
+            result[o++] = c.charCodeAt() & 0xff;
+        }
+    };
+
+    const writeUint32 = (...v) => {
+        for (let i = 0, j = o; i < v.length; i++, j += 4) {
+            result[j + 0] = (v[i] >>> 24) & 0xff;
+            result[j + 1] = (v[i] >>> 16) & 0xff;
+            result[j + 2] = (v[i] >>> 8) & 0xff;
+            result[j + 3] = v[i] & 0xff;
+        }
+
+        o += v.length * 4;
+    };
+
+    const writeUint8 = (...v) => {
+        for (let i = 0, j = o; i < v.length; i++, j++) {
+            result[j] = v[i] & 0xff;
+        }
+
+        o += v.length;
+    };
+
     // Header
 
-    // "qoif"
-    result[o++] = 0x71;
-    result[o++] = 0x6f;
-    result[o++] = 0x69;
-    result[o++] = 0x66;
-
-    result[o++] = (width >> 24) & 0xff;
-    result[o++] = (width >> 16) & 0xff;
-    result[o++] = (width >> 8) & 0xff;
-    result[o++] = width & 0xff;
-
-    result[o++] = (height >> 24) & 0xff;
-    result[o++] = (height >> 16) & 0xff;
-    result[o++] = (height >> 8) & 0xff;
-    result[o++] = height & 0xff;
-
-    result[o++] = channels;
-    result[o++] = colorspaceId;
+    writeString("qoif");
+    writeUint32(width, height);
+    writeUint8(channels, colorspaceId);
 
     // Data
 
@@ -89,13 +99,13 @@ export function encode(data, options) {
             ++run;
 
             if (run === 62) {
-                result[o++] = QOI_OP_RUN | ((run - 1) & 0b111111);
+                writeUint8(QOI_OP_RUN | ((run - 1) & 0b111111));
                 run = 0;
             }
 
             continue;
         } else if (run !== 0) {
-            result[o++] = QOI_OP_RUN | ((run - 1) & 0b111111);
+            writeUint8(QOI_OP_RUN | ((run - 1) & 0b111111));
             run = 0;
         }
 
@@ -103,7 +113,7 @@ export function encode(data, options) {
         const indexPos = (r * 3 + g * 5 + b * 7 + a * 11) & 63;
 
         if (v === index[indexPos]) {
-            result[o++] = QOI_OP_INDEX | indexPos;
+            writeUint8(QOI_OP_INDEX | indexPos);
             continue;
         }
 
@@ -124,7 +134,7 @@ export function encode(data, options) {
                 const __dg = _dg + 2;
                 const __db = _db + 2;
 
-                result[o++] = QOI_OP_DIFF | (__dr << 4) | (__dg << 2) | __db;
+                writeUint8(QOI_OP_DIFF | (__dr << 4) | (__dg << 2) | __db);
                 continue;
             }
 
@@ -140,28 +150,20 @@ export function encode(data, options) {
                 const __dr_dg = _dr_dg + 8;
                 const __db_dg = _db_dg + 8;
 
-                result[o++] = QOI_OP_LUMA | __dg;
-                result[o++] = (__dr_dg << 4) | __db_dg;
+                writeUint8(QOI_OP_LUMA | __dg, (__dr_dg << 4) | __db_dg);
                 continue;
             }
 
             // QOI_OP_RGB
-            result[o++] = QOI_OP_RGB;
-            result[o++] = r;
-            result[o++] = g;
-            result[o++] = b;
+            writeUint8(QOI_OP_RGB, r, g, b);
         } else {
             // QOI_OP_RGBA
-            result[o++] = QOI_OP_RGBA;
-            result[o++] = r;
-            result[o++] = g;
-            result[o++] = b;
-            result[o++] = a;
+            writeUint8(QOI_OP_RGBA, r, g, b, a);
         }
     }
 
     if (run > 0) {
-        result[o++] = QOI_OP_RUN | ((run - 1) & 0b111111);
+        writeUint8(QOI_OP_RUN | ((run - 1) & 0b111111));
     }
 
     return result.slice(0, o);
