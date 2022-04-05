@@ -35,8 +35,8 @@ export function encode(data, options) {
         throw new Error(`Invalid colorspace: ${JSON.stringify(colorspace)}, expected "srgb" or "linear".`);
     }
 
-    width = Number(width) | 0;
-    height = Number(height) | 0;
+    width = Number(width) >>> 0;
+    height = Number(height) >>> 0;
 
     if (data.length !== width * height * channels) {
         throw new Error(`Invalid data size: ${data.byteLength} bytes, expected ${width * height * channels} bytes.`);
