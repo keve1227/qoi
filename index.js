@@ -51,7 +51,7 @@ export function encode(data, options) {
     }
 
     const index = new Uint32Array(64);
-    const result = new Uint8Array(14 + width * height * 5);
+    const result = new Uint8Array(22 + width * height * 5);
     let o = 0;
 
     const writeString = (s) => {
@@ -175,6 +175,17 @@ export function encode(data, options) {
     if (run > 0) {
         writeUint8(QOI_OP_RUN | ((run - 1) & 0b111111));
     }
+
+    // End
+
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x00);
+    writeUint8(0x01);
 
     return result.slice(0, o);
 }
