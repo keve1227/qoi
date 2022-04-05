@@ -99,6 +99,7 @@ export function encode(data, options) {
             run = 0;
         }
 
+        // QOI_OP_INDEX
         const indexPos = (r * 3 + g * 5 + b * 7 + a * 11) & 63;
 
         if (v === index[indexPos]) {
@@ -109,6 +110,7 @@ export function encode(data, options) {
         index[indexPos] = v;
 
         if (a === _a) {
+            // QOI_OP_DIFF
             const dr = r - _r;
             const dg = g - _g;
             const db = b - _b;
@@ -126,6 +128,7 @@ export function encode(data, options) {
                 continue;
             }
 
+            // QOI_OP_LUMA
             const dr_dg = dr - dg;
             const db_dg = db - dg;
 
@@ -142,11 +145,13 @@ export function encode(data, options) {
                 continue;
             }
 
+            // QOI_OP_RGB
             result[o++] = QOI_OP_RGB;
             result[o++] = r;
             result[o++] = g;
             result[o++] = b;
         } else {
+            // QOI_OP_RGBA
             result[o++] = QOI_OP_RGBA;
             result[o++] = r;
             result[o++] = g;
