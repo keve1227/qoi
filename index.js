@@ -1,22 +1,3 @@
-/**
- * @typedef {{
- *     width: number,
- *     height: number,
- *     channels?: 3 | 4,
- *     colorspace?: keyof typeof colorspaces,
- * }} QOIEncodingOptions
- *
- * @typedef {{
- *     channels?: 3 | 4,
- * }} QOIDecodingOptions
- *
- * @typedef {{
- *     buffer: ArrayBufferLike,
- *     byteOffset: number,
- *     byteLength: number,
- * }} TypedArrayLike
- */
-
 const colorspaces = {
     srgb: 0,
     linear: 1,
@@ -38,12 +19,7 @@ const QOI_OP_RUN = 0b11_000000;
 
 const colorHash = (r, g, b, a) => (r * 3 + g * 5 + b * 7 + a * 11) & 63;
 
-/**
- * @template {TypedArrayLike} T
- * @param {T} data
- * @param {QOIEncodingOptions} options
- */
-export function encode(data, options) {
+export function encode(data, options = {}) {
     let { width, height, channels = 4, colorspace = "srgb" } = options;
     const colorspaceId = colorspaces[colorspace];
 
@@ -203,11 +179,6 @@ export function encode(data, options) {
     return result.slice(0, o);
 }
 
-/**
- * @template {TypedArrayLike} T
- * @param {T} data
- * @param {QOIDecodingOptions} [options={}]
- */
 export function decode(data, options = {}) {
     const { channels: outputChannels = 4 } = options;
 
@@ -394,4 +365,3 @@ export default {
     ...QOI,
     QOI,
 };
-
