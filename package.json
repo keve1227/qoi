@@ -2,10 +2,10 @@
     "name": "qoi",
     "version": "1.0.0",
     "private": true,
-    "description": "",
+    "description": "A pure JavaScript implementation of the QOI image format.",
     "author": {
         "name": "Kevin Sundqvist Norlén",
-        "email": "killenlillen02@gmail.com"
+        "email": "kevin.sundqvistnorlen@gmail.com"
     },
     "type": "module",
     "main": "index.js",
